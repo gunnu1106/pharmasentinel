@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmaSentinel — Drug Safety Signal Detection</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  * { font-family: 'Inter', sans-serif; }
+  .sidebar { width: 260px; min-height: 100vh; }
+  .main { flex: 1; min-height: 100vh; overflow-y: auto; }
+  .priority-HIGH { background: #FEF2F2; border-left: 4px solid #EF4444; }
+  .priority-MEDIUM { background: #FFFBEB; border-left: 4px solid #F59E0B; }
+  .priority-LOW { background: #F0FDF4; border-left: 4px solid #22C55E; }
+  .badge-HIGH { background: #FEE2E2; color: #991B1B; }
+  .badge-MEDIUM { background: #FEF3C7; color: #92400E; }
+  .badge-LOW { background: #DCFCE7; color: #166534; }
+  .badge-unlisted { background: #EDE9FE; color: #5B21B6; }
+  .badge-known { background: #E0F2FE; color: #075985; }
+  .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+  .nav-item { transition: all 0.15s; }
+  .nav-item:hover { background: rgba(99,102,241,0.1); }
+  .nav-item.active { background: rgba(99,102,241,0.15); border-left: 3px solid #6366F1; }
+  .card { transition: box-shadow 0.2s; }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .signal-row:hover { background: #F9FAFB; }
+  .spinner { border: 3px solid #E5E7EB; border-top: 3px solid #6366F1; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #toast { transition: all 0.3s; }
+</style>
+</head>
+<body class="bg-gray-50 flex">
+
+<!-- Sidebar -->
+<div class="sidebar bg-white border-r border-gray-200 flex flex-col fixed h-full z-10">
+  <div class="p-6 border-b border-gray-100">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="font-bold text-gray-900 text-sm">PharmaSentinel</h1>
+        <p class="text-xs text-gray-400">Drug Safety Monitor</p>
+      </div>
+    </div>
+  </div>
+
+  <nav class="flex-1 p-4 space-y-1">
+    <button onclick="showView('dashboard')" id="nav-dashboard" class="nav-item active w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 flex items-center gap-3">
+      <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+      Dashboard
+    </button>
+    <button onclick="showView('projects')" id="nav-projects" class="nav-item w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 flex items-center gap-3">
+      <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Projects
+    </button>
+    <button onclick="showView('signals')" id="nav-signals" class="nav-item w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 flex items-center gap-3">
+      <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      Signals
+      <span id="high-count-badge" class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5 hidden">0</span>
+    </button>
+    <button onclick="showView('reports')" id="nav-reports" class="nav-item w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 flex items-center gap-3">
+      <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Reports
+    </button>
+  </nav>
+
+  <div class="p-4 border-t border-gray-100">
+    <div class="bg-indigo-50 rounded-lg p-3">
+      <p class="text-xs font-medium text-indigo-800">CDSCO PvPI</p>
+      <p class="text-xs text-indigo-600 mt-1">Pharmacovigilance Programme of India</p>
+      <a href="#" class="text-xs text-indigo-500 underline mt-1 block">pvpi.nic.in ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main ml-[260px] p-8">
+
+  <!-- Toast -->
+  <div id="toast" class="fixed top-4 right-4 z-50 bg-gray-800 text-white text-sm px-4 py-2 rounded-lg hidden"></div>
+
+  <!-- DASHBOARD VIEW -->
+  <div id="view-dashboard">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+        <p class="text-gray-500 text-sm mt-1">Real-time drug safety signal overview</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 bg-green-400 rounded-full pulse"></div>
+        <span class="text-sm text-gray-500">Live monitoring</span>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-4 gap-4 mb-8" id="stats-grid">
+      <div class="bg-white rounded-xl p-5 border border-gray-100 card">
+        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Projects Active</p>
+        <p class="text-3xl font-bold text-gray-900 mt-2" id="stat-projects">—</p>
+        <p class="text-xs text-gray-400 mt-1">Drugs being monitored</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-gray-100 card">
+        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Posts Analyzed</p>
+        <p class="text-3xl font-bold text-indigo-600 mt-2" id="stat-posts">—</p>
+        <p class="text-xs text-gray-400 mt-1">Social media reports</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-gray-100 card">
+        <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Signals Detected</p>
+        <p class="text-3xl font-bold text-amber-500 mt-2" id="stat-signals">—</p>
+        <p class="text-xs text-gray-400 mt-1">ADR signals found</p>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-red-50 bg-red-50 card">
+        <p class="text-xs text-red-600 font-medium uppercase tracking-wide">Unlisted ADRs</p>
+        <p class="text-3xl font-bold text-red-600 mt-2" id="stat-unlisted">—</p>
+        <p class="text-xs text-red-400 mt-1">Not on CDSCO label</p>
+      </div>
+    </div>
+
+    <!-- High Priority Signals -->
+    <div class="bg-white rounded-xl border border-red-100 mb-6">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-red-50">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 bg-red-500 rounded-full pulse"></div>
+          <h3 class="font-semibold text-gray-800">High Priority Signals</h3>
+        </div>
+        <button onclick="showView('signals')" class="text-xs text-indigo-600 hover:underline">View all →</button>
+      </div>
+      <div id="high-priority-list" class="p-4">
+        <div class="flex justify-center py-8"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl border border-gray-100 p-6">
+        <h3 class="font-semibold text-gray-800 mb-4">Signal Priority Breakdown</h3>
+        <canvas id="priorityChart" height="200"></canvas>
+      </div>
+      <div class="bg-white rounded-xl border border-gray-100 p-6">
+        <h3 class="font-semibold text-gray-800 mb-4">ADR Categories Detected</h3>
+        <canvas id="categoryChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS VIEW -->
+  <div id="view-projects" class="hidden">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Monitoring Projects</h2>
+        <p class="text-gray-500 text-sm mt-1">Each project tracks one drug across platforms</p>
+      </div>
+      <button onclick="showNewProjectModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+        + New Project
+      </button>
+    </div>
+    <div id="projects-list" class="grid grid-cols-2 gap-4">
+      <div class="flex justify-center py-16 col-span-2"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- PROJECT DETAIL VIEW -->
+  <div id="view-project-detail" class="hidden">
+    <div class="mb-6">
+      <button onclick="showView('projects')" class="text-sm text-indigo-600 hover:underline flex items-center gap-1">
+        ← Back to Projects
+      </button>
+    </div>
+    <div id="project-detail-content"></div>
+  </div>
+
+  <!-- SIGNALS VIEW -->
+  <div id="view-signals" class="hidden">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">All Signals</h2>
+        <p class="text-gray-500 text-sm mt-1">Detected ADR signals across all projects</p>
+      </div>
+      <div class="flex gap-2">
+        <select id="filter-priority" onchange="loadSignals()" class="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white">
+          <option value="">All Priorities</option>
+          <option value="HIGH">High</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="LOW">Low</option>
+        </select>
+        <label class="flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-lg px-3 py-2 cursor-pointer">
+          <input type="checkbox" id="filter-unlisted" onchange="loadSignals()">
+          Unlisted only
+        </label>
+      </div>
+    </div>
+    <div id="signals-list">
+      <div class="flex justify-center py-16"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- SIGNAL DETAIL VIEW -->
+  <div id="view-signal-detail" class="hidden">
+    <div class="mb-6">
+      <button onclick="showView('signals')" class="text-sm text-indigo-600 hover:underline flex items-center gap-1">
+        ← Back to Signals
+      </button>
+    </div>
+    <div id="signal-detail-content"></div>
+  </div>
+
+  <!-- REPORTS VIEW -->
+  <div id="view-reports" class="hidden">
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900">Pharmacovigilance Reports</h2>
+      <p class="text-gray-500 text-sm mt-1">Auto-generated CDSCO-format reports ready for review</p>
+    </div>
+    <div id="reports-list">
+      <div class="flex justify-center py-16"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- REPORT DETAIL VIEW -->
+  <div id="view-report-detail" class="hidden">
+    <div class="mb-6">
+      <button onclick="showView('reports')" class="text-sm text-indigo-600 hover:underline">← Back to Reports</button>
+    </div>
+    <div id="report-detail-content"></div>
+  </div>
+
+</div>
+
+<!-- New Project Modal -->
+<div id="modal-new-project" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+    <h3 class="font-bold text-gray-900 text-lg mb-4">New Monitoring Project</h3>
+    <div class="space-y-4">
+      <div>
+        <label class="text-sm font-medium text-gray-700">Project Name</label>
+        <input id="new-project-name" type="text" placeholder="e.g. Azithromycin Safety Watch" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Drug Name</label>
+        <input id="new-project-drug" type="text" placeholder="e.g. azithromycin" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Description</label>
+        <textarea id="new-project-desc" placeholder="What are you monitoring for?" rows="2" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"></textarea>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">Monitoring Frequency</label>
+        <select id="new-project-freq" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+          <option value="realtime">Real-time</option>
+          <option value="daily" selected>Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex gap-3 mt-6">
+      <button onclick="createProject()" class="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">Create Project</button>
+      <button onclick="document.getElementById('modal-new-project').classList.add('hidden')" class="flex-1 border border-gray-200 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+let priorityChart = null;
+let categoryChart = null;
+let signalTimelineChart = null;
+
+// ── View Management ──────────────────────────────────────────────────────────
+function showView(view) {
+  const views = ['dashboard','projects','project-detail','signals','signal-detail','reports','report-detail'];
+  views.forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+  document.getElementById(`view-${view}`).classList.remove('hidden');
+
+  const navItems = ['dashboard','projects','signals','reports'];
+  navItems.forEach(n => document.getElementById(`nav-${n}`)?.classList.remove('active'));
+  const navMap = {'project-detail':'projects','signal-detail':'signals','report-detail':'reports'};
+  const activeNav = navMap[view] || view;
+  document.getElementById(`nav-${activeNav}`)?.classList.add('active');
+
+  if (view === 'dashboard') loadDashboard();
+  if (view === 'projects') loadProjects();
+  if (view === 'signals') loadSignals();
+  if (view === 'reports') loadReports();
+}
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const [stats, signals] = await Promise.all([
+    fetch(`${API}/api/stats`).then(r => r.json()),
+    fetch(`${API}/api/signals?priority=HIGH`).then(r => r.json()),
+  ]);
+
+  document.getElementById('stat-projects').textContent = stats.total_projects;
+  document.getElementById('stat-posts').textContent = stats.total_posts_analyzed;
+  document.getElementById('stat-signals').textContent = stats.total_signals;
+  document.getElementById('stat-unlisted').textContent = stats.unlisted_adrs;
+
+  const badge = document.getElementById('high-count-badge');
+  if (stats.high_priority_signals > 0) {
+    badge.textContent = stats.high_priority_signals;
+    badge.classList.remove('hidden');
+  }
+
+  renderHighPriorityList(signals.filter(s => !s.is_on_label).slice(0, 5));
+  renderPriorityChart(stats);
+  await renderCategoryChart();
+}
+
+function renderHighPriorityList(signals) {
+  const el = document.getElementById('high-priority-list');
+  if (!signals.length) {
+    el.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">No high priority unlisted signals detected</p>';
+    return;
+  }
+  el.innerHTML = signals.map(s => `
+    <div class="priority-HIGH rounded-lg p-4 mb-3 cursor-pointer signal-row" onclick="loadSignalDetail(${s.id})">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-semibold text-gray-900 text-sm">${s.drug_name.toUpperCase()}</span>
+            <span class="text-gray-400 text-sm">→</span>
+            <span class="font-medium text-red-700 text-sm">${s.adr_term}</span>
+            <span class="badge-unlisted text-xs px-2 py-0.5 rounded-full font-medium">NOT ON LABEL</span>
+          </div>
+          <p class="text-xs text-gray-500">${s.report_count} reports · PRR ${s.prr_score} · ${s.locations?.slice(0,2).join(', ') || 'India'}</p>
+        </div>
+        <div class="text-right">
+          <span class="badge-HIGH text-xs px-2 py-1 rounded-full font-semibold">HIGH</span>
+          <p class="text-xs text-gray-400 mt-1">↑${s.growth_rate}%/wk</p>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderPriorityChart(stats) {
+  const ctx = document.getElementById('priorityChart');
+  if (priorityChart) priorityChart.destroy();
+  priorityChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['High Priority', 'Medium', 'Low'],
+      datasets: [{
+        data: [stats.high_priority_signals, Math.floor(stats.total_signals * 0.3), stats.total_signals - stats.high_priority_signals - Math.floor(stats.total_signals * 0.3)],
+        backgroundColor: ['#EF4444', '#F59E0B', '#22C55E'],
+        borderWidth: 0,
+      }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+  });
+}
+
+async function renderCategoryChart() {
+  const signals = await fetch(`${API}/api/signals`).then(r => r.json());
+  const categories = {};
+  signals.forEach(s => {
+    const cat = s.adr_category || 'other';
+    categories[cat] = (categories[cat] || 0) + s.report_count;
+  });
+  const sorted = Object.entries(categories).sort((a,b) => b[1]-a[1]).slice(0, 6);
+  const ctx = document.getElementById('categoryChart');
+  if (categoryChart) categoryChart.destroy();
+  categoryChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(([k]) => k),
+      datasets: [{ label: 'Reports', data: sorted.map(([,v]) => v), backgroundColor: '#6366F1', borderRadius: 6 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+}
+
+// ── Projects ─────────────────────────────────────────────────────────────────
+async function loadProjects() {
+  const projects = await fetch(`${API}/api/projects`).then(r => r.json());
+  const el = document.getElementById('projects-list');
+  el.innerHTML = projects.map(p => `
+    <div class="bg-white rounded-xl border border-gray-100 p-5 card cursor-pointer" onclick="loadProjectDetail(${p.id})">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h3 class="font-semibold text-gray-900">${p.name}</h3>
+          <p class="text-xs text-indigo-600 font-medium mt-0.5">${p.drug_name.toUpperCase()}</p>
+        </div>
+        <span class="text-xs px-2 py-1 rounded-full ${p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'} font-medium">${p.status}</span>
+      </div>
+      <p class="text-sm text-gray-500 mb-4">${p.description || ''}</p>
+      <div class="grid grid-cols-3 gap-3 text-center border-t border-gray-50 pt-3">
+        <div><p class="text-lg font-bold text-gray-900">${p.total_posts}</p><p class="text-xs text-gray-400">Posts</p></div>
+        <div><p class="text-lg font-bold text-amber-500">${p.total_signals}</p><p class="text-xs text-gray-400">Signals</p></div>
+        <div><p class="text-xs text-gray-500 mt-1">${p.platforms?.join(', ')}</p><p class="text-xs text-gray-400">Platforms</p></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadProjectDetail(id) {
+  showView('project-detail');
+  const el = document.getElementById('project-detail-content');
+  el.innerHTML = '<div class="flex justify-center py-16"><div class="spinner"></div></div>';
+
+  const p = await fetch(`${API}/api/projects/${id}`).then(r => r.json());
+  const highSignals = p.signals.filter(s => s.priority === 'HIGH' && !s.is_on_label);
+  const info = p.drug_info;
+
+  el.innerHTML = `
+    <div class="flex items-start justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">${p.name}</h2>
+        <p class="text-gray-500 text-sm mt-1">${p.description}</p>
+      </div>
+      <button onclick="triggerCrawl(${p.id})" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+        Run Crawl Now
+      </button>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-xl border p-4">
+        <p class="text-xs text-gray-400">Drug Class</p>
+        <p class="font-medium text-gray-900 mt-1">${info?.drug_class || 'N/A'}</p>
+      </div>
+      <div class="bg-white rounded-xl border p-4">
+        <p class="text-xs text-gray-400">Brand Names (India)</p>
+        <p class="font-medium text-gray-900 mt-1 text-sm">${info?.brand_names?.slice(0,3).join(', ') || 'N/A'}</p>
+      </div>
+      <div class="bg-white rounded-xl border p-4">
+        <p class="text-xs text-gray-400">CDSCO Approval</p>
+        <p class="font-medium text-gray-900 mt-1">${info?.cdsco_approval || 'N/A'}</p>
+      </div>
+    </div>
+
+    ${highSignals.length ? `
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+      <h3 class="font-semibold text-red-800 flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        ${highSignals.length} Unlisted HIGH Priority Signal${highSignals.length > 1 ? 's' : ''} Detected
+      </h3>
+      <p class="text-sm text-red-600 mt-1">These side effects are being reported but are NOT listed on the CDSCO-approved label.</p>
+    </div>` : ''}
+
+    <div class="bg-white rounded-xl border mb-6">
+      <div class="px-6 py-4 border-b">
+        <h3 class="font-semibold text-gray-800">Detected Signals (${p.signals.length})</h3>
+      </div>
+      <div class="divide-y divide-gray-50">
+        ${p.signals.slice(0, 15).map(s => `
+          <div class="px-6 py-4 flex items-center justify-between signal-row cursor-pointer" onclick="loadSignalDetail(${s.id})">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-2 rounded-full ${s.priority === 'HIGH' ? 'bg-red-500' : s.priority === 'MEDIUM' ? 'bg-amber-400' : 'bg-green-400'}"></div>
+              <div>
+                <p class="font-medium text-gray-900 text-sm">${s.adr_term}</p>
+                <p class="text-xs text-gray-400">${s.adr_category} · ${s.report_count} reports · PRR ${s.prr_score}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs px-2 py-1 rounded-full ${s.is_on_label ? 'badge-known' : 'badge-unlisted'}">${s.is_on_label ? 'On Label' : 'UNLISTED'}</span>
+              <span class="text-xs px-2 py-1 rounded-full badge-${s.priority}">${s.priority}</span>
+              <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border p-6">
+      <h3 class="font-semibold text-gray-800 mb-3">CDSCO Label — Known Side Effects</h3>
+      <div class="flex flex-wrap gap-2">
+        ${(info?.known_side_effects || []).map(e => `<span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-full">${e}</span>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+async function triggerCrawl(id) {
+  showToast('Crawl started...');
+  await fetch(`${API}/api/projects/${id}/crawl`, {method: 'POST'});
+  showToast('Crawl complete! Refreshing...');
+  setTimeout(() => loadProjectDetail(id), 2000);
+}
+
+// ── Signals ──────────────────────────────────────────────────────────────────
+async function loadSignals() {
+  const priority = document.getElementById('filter-priority')?.value || '';
+  const unlistedOnly = document.getElementById('filter-unlisted')?.checked || false;
+
+  let url = `${API}/api/signals`;
+  const params = [];
+  if (priority) params.push(`priority=${priority}`);
+  if (unlistedOnly) params.push(`unlisted_only=true`);
+  if (params.length) url += '?' + params.join('&');
+
+  const signals = await fetch(url).then(r => r.json());
+  const el = document.getElementById('signals-list');
+
+  el.innerHTML = `
+    <div class="bg-white rounded-xl border overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b">
+          <tr>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Drug / ADR</th>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Reports</th>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">PRR</th>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Label Status</th>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Priority</th>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Growth</th>
+            <th class="px-6 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          ${signals.map(s => `
+            <tr class="signal-row cursor-pointer" onclick="loadSignalDetail(${s.id})">
+              <td class="px-6 py-4">
+                <p class="font-medium text-gray-900">${s.drug_name.toUpperCase()}</p>
+                <p class="text-gray-500 text-xs">${s.adr_term}</p>
+              </td>
+              <td class="px-6 py-4 text-gray-700 font-medium">${s.report_count}</td>
+              <td class="px-6 py-4">
+                <span class="${s.prr_score >= 2 ? 'text-red-600 font-semibold' : 'text-gray-600'}">${s.prr_score}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs px-2 py-1 rounded-full ${s.is_on_label ? 'badge-known' : 'badge-unlisted'}">${s.is_on_label ? 'Known' : 'UNLISTED'}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-xs px-2 py-1 rounded-full badge-${s.priority}">${s.priority}</span>
+              </td>
+              <td class="px-6 py-4 text-xs ${s.growth_rate > 0 ? 'text-red-500' : 'text-gray-400'}">
+                ${s.growth_rate > 0 ? '↑' : ''}${s.growth_rate}%
+              </td>
+              <td class="px-6 py-4">
+                <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function loadSignalDetail(id) {
+  showView('signal-detail');
+  const el = document.getElementById('signal-detail-content');
+  el.innerHTML = '<div class="flex justify-center py-16"><div class="spinner"></div></div>';
+
+  const s = await fetch(`${API}/api/signals/${id}`).then(r => r.json());
+
+  el.innerHTML = `
+    <div class="flex items-start justify-between mb-6">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <h2 class="text-2xl font-bold text-gray-900">${s.adr_term.toUpperCase()}</h2>
+          <span class="badge-${s.priority} text-sm px-3 py-1 rounded-full font-semibold">${s.priority} PRIORITY</span>
+          <span class="${s.is_on_label ? 'badge-known' : 'badge-unlisted'} text-sm px-3 py-1 rounded-full font-semibold">${s.is_on_label ? 'On CDSCO Label' : 'NOT ON LABEL'}</span>
+        </div>
+        <p class="text-gray-500">Drug: <span class="font-medium text-gray-700">${s.drug_name.toUpperCase()}</span> · Category: ${s.adr_category}</p>
+      </div>
+      <button onclick="generateReport(${s.id})" class="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Generate CDSCO Report
+      </button>
+    </div>
+
+    ${!s.is_on_label ? `
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+      <p class="text-red-800 font-semibold">Potential Unlisted Adverse Drug Reaction</p>
+      <p class="text-red-600 text-sm mt-1">This side effect is being reported on social media but is NOT listed in the CDSCO-approved drug label. PRR = ${s.prr_score} (threshold: 2.0). This meets criteria for pharmacovigilance investigation.</p>
+    </div>` : ''}
+
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-xl border p-4 text-center">
+        <p class="text-3xl font-bold text-gray-900">${s.report_count}</p>
+        <p class="text-xs text-gray-400 mt-1">Total Reports</p>
+      </div>
+      <div class="bg-white rounded-xl border p-4 text-center">
+        <p class="text-3xl font-bold ${s.prr_score >= 2 ? 'text-red-600' : 'text-gray-900'}">${s.prr_score}</p>
+        <p class="text-xs text-gray-400 mt-1">PRR Score</p>
+      </div>
+      <div class="bg-white rounded-xl border p-4 text-center">
+        <p class="text-3xl font-bold text-indigo-600">${Math.round(s.confidence * 100)}%</p>
+        <p class="text-xs text-gray-400 mt-1">Confidence</p>
+      </div>
+      <div class="bg-white rounded-xl border p-4 text-center">
+        <p class="text-3xl font-bold ${s.growth_rate > 0 ? 'text-red-500' : 'text-green-500'}">${s.growth_rate > 0 ? '↑' : ''}${s.growth_rate}%</p>
+        <p class="text-xs text-gray-400 mt-1">Weekly Growth</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 mb-6">
+      <div class="bg-white rounded-xl border p-6">
+        <h3 class="font-semibold text-gray-800 mb-4">Report Timeline</h3>
+        <canvas id="timelineChart" height="150"></canvas>
+      </div>
+      <div class="bg-white rounded-xl border p-6">
+        <h3 class="font-semibold text-gray-800 mb-3">Geographic Distribution</h3>
+        <div class="space-y-2 mt-2">
+          ${(s.locations || ['India']).map(loc => `
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 bg-indigo-400 rounded-full"></div>
+              <span class="text-sm text-gray-700">${loc}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="mt-4 pt-4 border-t">
+          <p class="text-xs text-gray-400">First detected: ${new Date(s.first_detected).toLocaleDateString()}</p>
+          <p class="text-xs text-gray-400">Last updated: ${new Date(s.last_updated).toLocaleDateString()}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border mb-6">
+      <div class="px-6 py-4 border-b">
+        <h3 class="font-semibold text-gray-800">Source Reports (Anonymized)</h3>
+        <p class="text-xs text-gray-400 mt-1">PII removed · Author IDs hashed</p>
+      </div>
+      <div class="divide-y divide-gray-50">
+        ${(s.source_posts || []).slice(0, 5).map((post, i) => `
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">${post.source?.toUpperCase()}</span>
+              ${post.subreddit ? `<span class="text-xs text-indigo-600">${post.subreddit}</span>` : ''}
+              ${post.location ? `<span class="text-xs text-gray-400">📍 ${post.location}</span>` : ''}
+              <span class="text-xs text-gray-400">Confidence: ${Math.round(post.confidence_score * 100)}%</span>
+              ${post.pii_detected ? `<span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">PII Removed</span>` : ''}
+            </div>
+            <p class="text-sm text-gray-700 leading-relaxed">${post.anonymized_content?.substring(0, 400)}${post.anonymized_content?.length > 400 ? '...' : ''}</p>
+            <div class="flex gap-2 mt-2">
+              ${(post.extracted_adrs || []).map(a => `<span class="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded">${a.term || a}</span>`).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  // Timeline chart
+  if (s.timeline?.length) {
+    const ctx = document.getElementById('timelineChart');
+    if (signalTimelineChart) signalTimelineChart.destroy();
+    signalTimelineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: s.timeline.map(t => t.week),
+        datasets: [{
+          label: 'Reports',
+          data: s.timeline.map(t => t.count),
+          borderColor: '#6366F1',
+          backgroundColor: 'rgba(99,102,241,0.1)',
+          fill: true,
+          tension: 0.4,
+        }]
+      },
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+}
+
+async function generateReport(signalId) {
+  showToast('Generating CDSCO report...');
+  const resp = await fetch(`${API}/api/signals/${signalId}/report`, {method: 'POST'}).then(r => r.json());
+  showToast('Report generated!');
+  setTimeout(() => {
+    showView('reports');
+    loadReports();
+  }, 1000);
+}
+
+// ── Reports ──────────────────────────────────────────────────────────────────
+async function loadReports() {
+  const reports = await fetch(`${API}/api/reports`).then(r => r.json());
+  const el = document.getElementById('reports-list');
+  if (!reports.length) {
+    el.innerHTML = '<div class="bg-white rounded-xl border p-12 text-center"><p class="text-gray-400">No reports generated yet. Go to a signal and click "Generate CDSCO Report".</p></div>';
+    return;
+  }
+  el.innerHTML = `
+    <div class="space-y-3">
+      ${reports.map(r => `
+        <div class="bg-white rounded-xl border p-5 flex items-center justify-between card cursor-pointer" onclick="loadReportDetail(${r.id})">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">${r.title}</p>
+              <p class="text-xs text-gray-400">${new Date(r.generated_at).toLocaleString()}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs px-2 py-1 rounded-full ${r.status === 'draft' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}">${r.status.toUpperCase()}</span>
+            <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function loadReportDetail(id) {
+  showView('report-detail');
+  const el = document.getElementById('report-detail-content');
+  el.innerHTML = '<div class="flex justify-center py-16"><div class="spinner"></div></div>';
+  const r = await fetch(`${API}/api/reports/${id}`).then(r => r.json());
+  const c = r.content;
+
+  el.innerHTML = `
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">${r.title}</h2>
+        <p class="text-sm text-gray-400 mt-1">Generated: ${new Date(r.generated_at).toLocaleString()} · Status: ${r.status.toUpperCase()}</p>
+      </div>
+      <button onclick="downloadReport(${id})" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700">
+        Export JSON
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      ${renderReportSection('Report Metadata', c.report_metadata)}
+      ${renderReportSection('Drug Information', c.drug_information)}
+      ${renderReportSection('Adverse Drug Reaction', c.adverse_drug_reaction)}
+      ${renderReportSection('Signal Statistics', c.signal_statistics)}
+      ${renderReportSection('Regulatory Assessment', c.regulatory_assessment)}
+      ${renderReportSection('PII Compliance', c.pii_compliance)}
+
+      <div class="bg-white rounded-xl border p-5">
+        <h3 class="font-semibold text-gray-800 mb-3">Source Reports Summary</h3>
+        ${(c.source_reports_summary || []).map(s => `
+          <div class="border border-gray-100 rounded-lg p-4 mb-3">
+            <div class="flex gap-3 mb-2">
+              <span class="text-xs font-medium bg-gray-100 px-2 py-0.5 rounded">${s.case_number}</span>
+              <span class="text-xs text-indigo-600">${s.source_platform} · ${s.community || ''}</span>
+              <span class="text-xs text-gray-400">📍 ${s.reported_location}</span>
+            </div>
+            <p class="text-sm text-gray-700">${s.anonymized_excerpt}</p>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 text-sm text-amber-800">
+        <strong>Disclaimer:</strong> ${c.footer?.disclaimer}
+      </div>
+    </div>
+  `;
+}
+
+function renderReportSection(title, data) {
+  if (!data) return '';
+  return `
+    <div class="bg-white rounded-xl border p-5">
+      <h3 class="font-semibold text-gray-800 mb-3">${title}</h3>
+      <div class="grid grid-cols-2 gap-2">
+        ${Object.entries(data).map(([k, v]) => `
+          <div class="bg-gray-50 rounded-lg p-3">
+            <p class="text-xs text-gray-400 font-medium uppercase">${k.replace(/_/g,' ')}</p>
+            <p class="text-sm text-gray-800 mt-0.5 font-medium">${Array.isArray(v) ? v.join(', ') : typeof v === 'object' && v ? JSON.stringify(v) : String(v)}</p>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function downloadReport(id) {
+  fetch(`${API}/api/reports/${id}`).then(r => r.json()).then(data => {
+    const blob = new Blob([JSON.stringify(data.content, null, 2)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `PV_Report_${id}.json`;
+    a.click();
+  });
+}
+
+// ── New Project ──────────────────────────────────────────────────────────────
+function showNewProjectModal() {
+  document.getElementById('modal-new-project').classList.remove('hidden');
+}
+
+async function createProject() {
+  const name = document.getElementById('new-project-name').value.trim();
+  const drug = document.getElementById('new-project-drug').value.trim();
+  const desc = document.getElementById('new-project-desc').value.trim();
+  const freq = document.getElementById('new-project-freq').value;
+
+  if (!name || !drug) { showToast('Fill in project name and drug name'); return; }
+
+  const resp = await fetch(`${API}/api/projects`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name, drug_name: drug, description: desc, frequency: freq})
+  }).then(r => r.json());
+
+  document.getElementById('modal-new-project').classList.add('hidden');
+  showToast('Project created! Crawling social media...');
+  setTimeout(() => loadProjectDetail(resp.id), 1500);
+}
+
+// ── Utils ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+// Init
+loadDashboard();
+</script>
+</body>
+</html>

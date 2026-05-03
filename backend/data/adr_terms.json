@@ -1,0 +1,22 @@
+{
+  "symptom_keywords": {
+    "cardiac": ["heart attack", "chest pain", "palpitations", "arrhythmia", "tachycardia", "bradycardia", "irregular heartbeat", "heart racing", "cardiac arrest", "heart flutter"],
+    "neurological": ["seizure", "convulsion", "tremor", "numbness", "tingling", "confusion", "memory loss", "hallucination", "dizziness", "vertigo", "fainting", "blackout", "syncope", "stroke", "peripheral neuropathy", "brain fog"],
+    "gastrointestinal": ["nausea", "vomiting", "diarrhea", "constipation", "stomach pain", "abdominal pain", "bloating", "flatulence", "indigestion", "heartburn", "acid reflux", "loose stools", "bowel changes", "stomach cramps"],
+    "hepatic": ["jaundice", "yellow skin", "yellow eyes", "liver pain", "dark urine", "liver damage", "hepatitis", "elevated liver enzymes", "liver failure"],
+    "renal": ["kidney pain", "kidney failure", "decreased urination", "blood in urine", "swollen feet", "edema", "renal failure", "proteinuria"],
+    "dermatological": ["rash", "hives", "itching", "skin reaction", "blistering", "peeling skin", "swelling", "urticaria", "steven johnson", "drug rash", "photosensitivity", "sun sensitivity"],
+    "musculoskeletal": ["muscle pain", "myalgia", "joint pain", "muscle weakness", "muscle cramps", "muscle ache", "tendon pain", "back pain", "arthralgia", "rhabdomyolysis"],
+    "respiratory": ["breathing difficulty", "shortness of breath", "wheezing", "cough", "bronchospasm", "dyspnea", "chest tightness"],
+    "psychiatric": ["depression", "anxiety", "mood changes", "suicidal thoughts", "insomnia", "sleep problems", "agitation", "panic attacks", "psychosis"],
+    "endocrine": ["hair loss", "alopecia", "weight gain", "weight loss", "thyroid", "hormonal changes", "menstrual changes", "libido changes"],
+    "hematological": ["anemia", "bruising", "bleeding", "blood clot", "low platelet", "thrombocytopenia", "leukopenia"],
+    "sensory": ["vision changes", "blurred vision", "hearing loss", "tinnitus", "ringing in ears", "taste changes", "metallic taste", "smell changes"],
+    "allergic": ["anaphylaxis", "allergic reaction", "swollen throat", "tongue swelling", "difficulty swallowing", "severe allergy"]
+  },
+  "first_person_indicators": ["i ", "i've", "i have", "i had", "i am", "i'm", "i was", "my ", "me ", "myself", "i noticed", "i experienced", "i developed", "i started", "i got", "i feel", "i felt"],
+  "negation_words": ["no ", "not ", "never ", "didn't", "don't", "doesn't", "without", "none", "cannot", "can't", "wasn't", "weren't", "hasn't", "haven't", "hadn't"],
+  "drug_mention_patterns": ["taking", "started", "prescribed", "been on", "using", "took", "switched to", "on dose", "mg dose", "tablet", "capsule", "prescribed me"],
+  "confidence_boosters": ["doctor confirmed", "diagnosed", "test showed", "blood test", "hospital", "emergency", "serious", "severe", "stopped taking", "switched medication", "pharmacist said"],
+  "noise_phrases": ["question", "asking", "anyone know", "does anyone", "wondering", "curious", "my friend", "my mom", "my dad", "my husband", "my wife", "she ", "he ", "they ", "article says", "study shows", "research shows"]
+}

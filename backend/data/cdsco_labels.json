@@ -1,0 +1,132 @@
+{
+  "azithromycin": {
+    "generic_name": "Azithromycin",
+    "brand_names": ["Azithral", "Zithromax", "Azifast", "Azee"],
+    "drug_class": "Macrolide Antibiotic",
+    "approved_indications": ["Community-acquired pneumonia", "Pharyngitis", "Sinusitis", "Skin infections", "STIs"],
+    "cdsco_approval": "1998",
+    "known_side_effects": [
+      "nausea", "vomiting", "diarrhea", "abdominal pain", "stomach pain",
+      "headache", "dizziness", "rash", "allergic reaction", "liver problems",
+      "qt prolongation", "palpitations", "hearing loss", "jaundice",
+      "skin rash", "itching", "loose stools", "indigestion"
+    ],
+    "serious_warnings": ["QT prolongation", "Hepatotoxicity", "Anaphylaxis"]
+  },
+  "paracetamol": {
+    "generic_name": "Paracetamol",
+    "brand_names": ["Crocin", "Dolo 650", "Calpol", "Pyrigesic", "Metacin"],
+    "drug_class": "Analgesic / Antipyretic",
+    "approved_indications": ["Fever", "Mild to moderate pain", "Headache", "Arthritis"],
+    "cdsco_approval": "1960",
+    "known_side_effects": [
+      "nausea", "vomiting", "liver damage", "hepatotoxicity", "rash",
+      "allergic reaction", "anemia", "kidney damage", "stomach pain",
+      "loss of appetite", "dark urine", "jaundice"
+    ],
+    "serious_warnings": ["Hepatotoxicity at high doses", "Renal failure"]
+  },
+  "amoxicillin": {
+    "generic_name": "Amoxicillin",
+    "brand_names": ["Novamox", "Mox", "Amoxil", "Wymox"],
+    "drug_class": "Penicillin Antibiotic",
+    "approved_indications": ["Respiratory tract infections", "UTI", "Ear infections", "Dental infections"],
+    "cdsco_approval": "1976",
+    "known_side_effects": [
+      "diarrhea", "nausea", "vomiting", "rash", "allergic reaction",
+      "stomach pain", "headache", "skin rash", "itching", "hives",
+      "thrush", "yeast infection", "dizziness"
+    ],
+    "serious_warnings": ["Anaphylaxis", "Stevens-Johnson Syndrome", "Clostridium difficile"]
+  },
+  "metformin": {
+    "generic_name": "Metformin",
+    "brand_names": ["Glycomet", "Obimet", "Glucophage", "Cetapin"],
+    "drug_class": "Biguanide Antidiabetic",
+    "approved_indications": ["Type 2 Diabetes Mellitus", "PCOS", "Insulin resistance"],
+    "cdsco_approval": "1995",
+    "known_side_effects": [
+      "nausea", "vomiting", "diarrhea", "stomach upset", "metallic taste",
+      "loss of appetite", "abdominal pain", "lactic acidosis", "vitamin b12 deficiency",
+      "bloating", "flatulence", "indigestion", "headache"
+    ],
+    "serious_warnings": ["Lactic acidosis", "Renal impairment contraindication"]
+  },
+  "atorvastatin": {
+    "generic_name": "Atorvastatin",
+    "brand_names": ["Atorva", "Lipitor", "Storvas", "Avas"],
+    "drug_class": "HMG-CoA Reductase Inhibitor (Statin)",
+    "approved_indications": ["Hypercholesterolemia", "Cardiovascular disease prevention", "Dyslipidemia"],
+    "cdsco_approval": "2000",
+    "known_side_effects": [
+      "muscle pain", "myalgia", "muscle weakness", "joint pain", "diarrhea",
+      "nausea", "headache", "liver problems", "elevated liver enzymes",
+      "memory problems", "confusion", "rhabdomyolysis", "insomnia"
+    ],
+    "serious_warnings": ["Rhabdomyolysis", "Hepatotoxicity", "Myopathy"]
+  },
+  "omeprazole": {
+    "generic_name": "Omeprazole",
+    "brand_names": ["Omez", "Omepral", "Prilosec", "Ocid"],
+    "drug_class": "Proton Pump Inhibitor",
+    "approved_indications": ["GERD", "Peptic ulcer", "H. pylori eradication", "Zollinger-Ellison syndrome"],
+    "cdsco_approval": "1992",
+    "known_side_effects": [
+      "headache", "nausea", "diarrhea", "stomach pain", "vomiting",
+      "constipation", "flatulence", "rash", "dizziness", "vitamin b12 deficiency",
+      "magnesium deficiency", "bone fractures", "kidney disease"
+    ],
+    "serious_warnings": ["Hypomagnesemia", "Clostridium difficile", "Bone fractures (long-term use)"]
+  },
+  "ciprofloxacin": {
+    "generic_name": "Ciprofloxacin",
+    "brand_names": ["Cifran", "Ciplox", "Ciprolet", "Ciprobid"],
+    "drug_class": "Fluoroquinolone Antibiotic",
+    "approved_indications": ["UTI", "Respiratory infections", "Bone infections", "Anthrax"],
+    "cdsco_approval": "1990",
+    "known_side_effects": [
+      "nausea", "diarrhea", "vomiting", "stomach pain", "headache",
+      "dizziness", "rash", "tendon pain", "tendinitis", "photosensitivity",
+      "confusion", "hallucinations", "qt prolongation", "joint pain"
+    ],
+    "serious_warnings": ["Tendon rupture", "CNS effects", "QT prolongation", "Aortic aneurysm"]
+  },
+  "cetirizine": {
+    "generic_name": "Cetirizine",
+    "brand_names": ["Cetzine", "Alerid", "Zyrtec", "CTZ"],
+    "drug_class": "Second-generation Antihistamine",
+    "approved_indications": ["Allergic rhinitis", "Urticaria", "Allergic conjunctivitis", "Pruritus"],
+    "cdsco_approval": "1995",
+    "known_side_effects": [
+      "drowsiness", "headache", "dry mouth", "fatigue", "dizziness",
+      "nausea", "stomach pain", "sore throat", "insomnia", "nervousness"
+    ],
+    "serious_warnings": ["Seizures (rare)", "Urinary retention"]
+  },
+  "pantoprazole": {
+    "generic_name": "Pantoprazole",
+    "brand_names": ["Pan 40", "Pantodac", "Pantop", "Nexpro"],
+    "drug_class": "Proton Pump Inhibitor",
+    "approved_indications": ["GERD", "Erosive esophagitis", "Peptic ulcer", "H. pylori"],
+    "cdsco_approval": "1998",
+    "known_side_effects": [
+      "headache", "diarrhea", "nausea", "stomach pain", "vomiting",
+      "flatulence", "dizziness", "rash", "constipation", "insomnia",
+      "vitamin b12 deficiency", "hypomagnesemia"
+    ],
+    "serious_warnings": ["Hypomagnesemia", "Clostridium difficile", "Bone fractures"]
+  },
+  "doxycycline": {
+    "generic_name": "Doxycycline",
+    "brand_names": ["Doxy 1", "Doxt", "Vibramycin", "Microdox"],
+    "drug_class": "Tetracycline Antibiotic",
+    "approved_indications": ["Bacterial infections", "Malaria prophylaxis", "Acne", "Lyme disease"],
+    "cdsco_approval": "1970",
+    "known_side_effects": [
+      "nausea", "vomiting", "diarrhea", "stomach upset", "photosensitivity",
+      "skin rash", "esophageal irritation", "tooth discoloration", "headache",
+      "loss of appetite", "yeast infection", "dizziness"
+    ],
+    "serious_warnings": ["Photosensitivity", "Intracranial hypertension", "Hepatotoxicity"]
+  }
+}
