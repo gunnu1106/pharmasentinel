@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmaSentinel — Pitch Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+  body { background: #0f0f0f; color: white; }
+
+  .slide {
+    width: 100vw; height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 60px 80px;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Slide Backgrounds ── */
+  .slide-1  { background: linear-gradient(135deg, #0f0f1a 0%, #1a0a2e 50%, #0d1b3e 100%); }
+  .slide-2  { background: linear-gradient(135deg, #1a0000 0%, #2d0000 100%); }
+  .slide-3  { background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%); }
+  .slide-4  { background: linear-gradient(135deg, #0a1f0a 0%, #0d2b1a 100%); }
+  .slide-5  { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 100%); }
+  .slide-6  { background: linear-gradient(135deg, #1a0f00 0%, #2d1a00 100%); }
+  .slide-7  { background: linear-gradient(135deg, #001a1a 0%, #002626 100%); }
+  .slide-8  { background: linear-gradient(135deg, #0a0a1f 0%, #0f1535 100%); }
+  .slide-9  { background: linear-gradient(135deg, #0f0f1a 0%, #1a0a2e 50%, #0d1b3e 100%); }
+
+  /* ── Typography ── */
+  .tag {
+    font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+    padding: 6px 16px; border-radius: 20px; margin-bottom: 24px;
+    display: inline-block;
+  }
+  .tag-purple { background: rgba(139,92,246,0.2); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+  .tag-red    { background: rgba(239,68,68,0.2);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+  .tag-blue   { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+  .tag-green  { background: rgba(34,197,94,0.2);  color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+  .tag-amber  { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+  .tag-teal   { background: rgba(20,184,166,0.2); color: #5eead4; border: 1px solid rgba(20,184,166,0.3); }
+
+  h1 { font-size: 56px; font-weight: 900; line-height: 1.1; }
+  h2 { font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
+  h3 { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+  p  { font-size: 18px; line-height: 1.7; color: rgba(255,255,255,0.7); }
+
+  .accent-purple { color: #a78bfa; }
+  .accent-red    { color: #f87171; }
+  .accent-green  { color: #86efac; }
+  .accent-amber  { color: #fcd34d; }
+  .accent-blue   { color: #93c5fd; }
+  .accent-teal   { color: #5eead4; }
+
+  /* ── Grid layouts ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; width: 100%; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; width: 100%; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; width: 100%; }
+
+  /* ── Cards ── */
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 28px;
+  }
+  .card-red    { border-color: rgba(239,68,68,0.3);  background: rgba(239,68,68,0.08); }
+  .card-green  { border-color: rgba(34,197,94,0.3);  background: rgba(34,197,94,0.08); }
+  .card-blue   { border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.08); }
+  .card-purple { border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.08); }
+  .card-amber  { border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.08); }
+  .card-teal   { border-color: rgba(20,184,166,0.3); background: rgba(20,184,166,0.08); }
+
+  /* ── Stat number ── */
+  .stat-num { font-size: 52px; font-weight: 900; line-height: 1; }
+  .stat-label { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 6px; font-weight: 500; }
+
+  /* ── Step ── */
+  .step-num {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 16px; margin-bottom: 16px;
+  }
+
+  /* ── Signal box ── */
+  .signal-box {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.4);
+    border-left: 4px solid #ef4444;
+    border-radius: 12px; padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+
+  /* ── Flow arrow ── */
+  .flow { display: flex; align-items: center; gap: 16px; width: 100%; }
+  .flow-item {
+    flex: 1; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 20px 16px; text-align: center;
+  }
+  .flow-arrow { font-size: 24px; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+
+  /* ── PRR formula ── */
+  .formula {
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 12px; padding: 24px 32px;
+    font-family: 'Courier New', monospace;
+    font-size: 18px; text-align: center;
+    color: #c4b5fd;
+  }
+
+  /* ── Slide number ── */
+  .slide-num {
+    position: absolute; bottom: 28px; right: 40px;
+    font-size: 12px; color: rgba(255,255,255,0.2); font-weight: 500;
+  }
+
+  /* ── Nav ── */
+  #nav {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 12px; z-index: 100;
+    background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 30px;
+    backdrop-filter: blur(10px);
+  }
+  #nav button {
+    background: rgba(255,255,255,0.1); border: none; color: white;
+    padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px;
+    transition: all 0.2s;
+  }
+  #nav button:hover { background: rgba(255,255,255,0.2); }
+  #slide-counter { color: rgba(255,255,255,0.5); font-size: 13px; display: flex; align-items: center; padding: 0 8px; }
+
+  /* ── Decorative circles ── */
+  .deco {
+    position: absolute; border-radius: 50%;
+    opacity: 0.15; pointer-events: none;
+  }
+
+  @media print {
+    #nav { display: none; }
+    .slide { height: 100vh; page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── SLIDE 1: TITLE ───────────────────────────────────────────────────── -->
+<div class="slide slide-1" id="slide-1">
+  <div class="deco" style="width:500px;height:500px;background:radial-gradient(circle,#7c3aed,transparent);top:-100px;right:-100px;"></div>
+  <div class="deco" style="width:400px;height:400px;background:radial-gradient(circle,#1d4ed8,transparent);bottom:-100px;left:-100px;"></div>
+
+  <div style="text-align:center;z-index:1;max-width:900px;">
+    <div class="tag tag-purple">Theme 6 — Real-Time Social Listening</div>
+    <h1 style="margin-bottom:20px;">
+      <span class="accent-purple">Pharma</span>Sentinel
+    </h1>
+    <p style="font-size:22px;color:rgba(255,255,255,0.6);max-width:700px;margin:0 auto 40px;">
+      Real-Time Drug Safety Signal Detection via Social Media<br>
+      and CDSCO Label Cross-Referencing
+    </p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:30px;padding:10px 24px;font-size:14px;color:rgba(255,255,255,0.7);">
+        Gunjan &amp; Huda Khan
+      </div>
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:30px;padding:10px 24px;font-size:14px;color:rgba(255,255,255,0.7);">
+        MCA — MIET Meerut
+      </div>
+    </div>
+  </div>
+  <span class="slide-num">1 / 9</span>
+</div>
+
+<!-- ── SLIDE 2: PROBLEM ─────────────────────────────────────────────────── -->
+<div class="slide slide-2" id="slide-2" style="display:none;">
+  <div class="deco" style="width:600px;height:600px;background:radial-gradient(circle,#dc2626,transparent);top:-200px;right:-200px;"></div>
+
+  <div style="width:100%;max-width:1000px;z-index:1;">
+    <div class="tag tag-red">The Problem</div>
+    <h2>India's pharmacovigilance system is <span class="accent-red">broken</span></h2>
+
+    <div class="grid-2" style="margin-top:40px;">
+      <div>
+        <div class="signal-box">
+          <p style="color:#fca5a5;font-size:15px;line-height:1.7;font-style:italic;">
+            "I've been on Azithral for 3 days. I started experiencing severe ringing in my ears. My doctor didn't mention this as a side effect..."
+          </p>
+          <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px;">— Reddit r/AskDocs, Delhi</p>
+        </div>
+        <div class="signal-box">
+          <p style="color:#fca5a5;font-size:15px;line-height:1.7;font-style:italic;">
+            "Second patient this week reporting tinnitus on azithromycin. The drug label doesn't list this..."
+          </p>
+          <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px;">— Twitter, Healthcare professional</p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="card card-red">
+          <div class="stat-num accent-red">95%</div>
+          <div class="stat-label">Adverse drug reactions go unreported in India</div>
+        </div>
+        <div class="card card-red">
+          <div class="stat-num accent-red">Manual</div>
+          <div class="stat-label">CDSCO relies on doctors filing reports — slow &amp; incomplete</div>
+        </div>
+        <div class="card card-red">
+          <div class="stat-num accent-red">Zero</div>
+          <div class="stat-label">Systematic monitoring of what patients say online</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <span class="slide-num">2 / 9</span>
+</div>
+
+<!-- ── SLIDE 3: SOLUTION ────────────────────────────────────────────────── -->
+<div class="slide slide-3" id="slide-3" style="display:none;">
+  <div class="deco" style="width:500px;height:500px;background:radial-gradient(circle,#1d4ed8,transparent);bottom:-150px;right:-100px;"></div>
+
+  <div style="width:100%;max-width:1000px;z-index:1;">
+    <div class="tag tag-blue">The Solution</div>
+    <h2>PharmaSentinel does <span class="accent-blue">three things</span></h2>
+
+    <div class="grid-3" style="margin-top:40px;">
+      <div class="card card-blue" style="text-align:center;">
+        <div style="font-size:40px;margin-bottom:16px;">👂</div>
+        <h3 style="color:#93c5fd;">Listen</h3>
+        <p style="font-size:15px;">Continuously crawl Twitter/X, Reddit, Quora &amp; health forums for drug-related patient reports</p>
+      </div>
+      <div class="card card-blue" style="text-align:center;">
+        <div style="font-size:40px;margin-bottom:16px;">🔍</div>
+        <h3 style="color:#93c5fd;">Compare</h3>
+        <p style="font-size:15px;">Cross-reference every detected side effect against the CDSCO-approved drug label — flag what's unlisted</p>
+      </div>
+      <div class="card card-blue" style="text-align:center;">
+        <div style="font-size:40px;margin-bottom:16px;">📋</div>
+        <h3 style="color:#93c5fd;">Report</h3>
+        <p style="font-size:15px;">Score signals using PRR and auto-generate CDSCO-format pharmacovigilance reports ready for submission</p>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:20px 28px;text-align:center;">
+      <p style="color:#93c5fd;font-size:16px;">
+        <strong>Key insight:</strong> Most social listening tools tell you what people are saying.
+        We tell you what people are saying that <strong>regulators don't know about yet</strong>.
+      </p>
+    </div>
+  </div>
+  <span class="slide-num">3 / 9</span>
+</div>
+
+<!-- ── SLIDE 4: HOW IT WORKS ─────────────────────────────────────────────── -->
+<div class="slide slide-4" id="slide-4" style="display:none;">
+  <div class="deco" style="width:400px;height:400px;background:radial-gradient(circle,#16a34a,transparent);top:-100px;left:-100px;"></div>
+
+  <div style="width:100%;max-width:1000px;z-index:1;">
+    <div class="tag tag-green">How It Works</div>
+    <h2>Full pipeline — <span class="accent-green">end to end</span></h2>
+
+    <div style="margin-top:36px;" class="flow">
+      <div class="flow-item">
+        <div style="font-size:28px;margin-bottom:10px;">🌐</div>
+        <h3 style="font-size:16px;color:#86efac;">Crawl</h3>
+        <p style="font-size:13px;">Reddit, Twitter, Quora, Health Forums</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <div style="font-size:28px;margin-bottom:10px;">🧠</div>
+        <h3 style="font-size:16px;color:#86efac;">NLP</h3>
+        <p style="font-size:13px;">First-person filter + ADR extraction + PII removal</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <div style="font-size:28px;margin-bottom:10px;">📊</div>
+        <h3 style="font-size:16px;color:#86efac;">PRR Score</h3>
+        <p style="font-size:13px;">Signal strength vs background rate</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <div style="font-size:28px;margin-bottom:10px;">🏷️</div>
+        <h3 style="font-size:16px;color:#86efac;">CDSCO Check</h3>
+        <p style="font-size:13px;">Listed or unlisted on drug label?</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <div style="font-size:28px;margin-bottom:10px;">🚨</div>
+        <h3 style="font-size:16px;color:#86efac;">Alert</h3>
+        <p style="font-size:13px;">High priority signal + auto report</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:28px;">
+      <div class="card" style="border-color:rgba(34,197,94,0.2);">
+        <h3 style="font-size:16px;color:#86efac;margin-bottom:8px;">NLP Pipeline</h3>
+        <p style="font-size:14px;">Filters first-person reports ("I", "my", "I've") from general discussion. Detects negations. Extracts ADR terms from 15 medical categories.</p>
+      </div>
+      <div class="card" style="border-color:rgba(34,197,94,0.2);">
+        <h3 style="font-size:16px;color:#86efac;margin-bottom:8px;">PII Protection</h3>
+        <p style="font-size:14px;">Detects names, phones, Aadhaar, email, Reddit usernames. SHA-256 hashes author IDs. GDPR &amp; health data compliant.</p>
+      </div>
+    </div>
+  </div>
+  <span class="slide-num">4 / 9</span>
+</div>
+
+<!-- ── SLIDE 5: PRR ──────────────────────────────────────────────────────── -->
+<div class="slide slide-5" id="slide-5" style="display:none;">
+  <div class="deco" style="width:500px;height:500px;background:radial-gradient(circle,#7c3aed,transparent);bottom:-100px;right:-100px;"></div>
+
+  <div style="width:100%;max-width:900px;z-index:1;">
+    <div class="tag tag-purple">Signal Science</div>
+    <h2>PRR — the same method used by <span class="accent-purple">WHO &amp; EMA</span></h2>
+
+    <div style="margin-top:36px;">
+      <div class="formula">
+        PRR = (n_drug+ADR / n_drug_total) ÷ (n_background+ADR / n_background_total)
+      </div>
+
+      <div class="grid-3" style="margin-top:28px;">
+        <div class="card card-purple" style="text-align:center;">
+          <div class="stat-num accent-purple">≥ 2.0</div>
+          <div class="stat-label">PRR threshold for signal</div>
+        </div>
+        <div class="card card-purple" style="text-align:center;">
+          <div class="stat-num accent-purple">≥ 3</div>
+          <div class="stat-label">Minimum independent reports</div>
+        </div>
+        <div class="card card-purple" style="text-align:center;">
+          <div class="stat-num accent-purple">≥ 4.0</div>
+          <div class="stat-label">Chi-squared significance</div>
+        </div>
+      </div>
+
+      <div style="margin-top:28px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:24px 32px;">
+        <p style="color:#f87171;font-size:15px;">
+          <strong>Real example detected by PharmaSentinel:</strong><br><br>
+          Drug: <strong>Azithromycin</strong> &nbsp;·&nbsp;
+          ADR: <strong>Tinnitus</strong> &nbsp;·&nbsp;
+          Reports: <strong>3 independent</strong> &nbsp;·&nbsp;
+          PRR: <strong style="font-size:20px;">71.4</strong> &nbsp;·&nbsp;
+          CDSCO Label: <strong>NOT LISTED</strong> &nbsp;·&nbsp;
+          Priority: <strong>HIGH 🚨</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+  <span class="slide-num">5 / 9</span>
+</div>
+
+<!-- ── SLIDE 6: DASHBOARD ───────────────────────────────────────────────── -->
+<div class="slide slide-6" id="slide-6" style="display:none;">
+  <div class="deco" style="width:500px;height:500px;background:radial-gradient(circle,#d97706,transparent);top:-150px;right:-100px;"></div>
+
+  <div style="width:100%;max-width:1000px;z-index:1;">
+    <div class="tag tag-amber">Dashboard</div>
+    <h2>Everything a <span class="accent-amber">pharmacovigilance team</span> needs</h2>
+
+    <div class="grid-2" style="margin-top:36px;">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card card-amber" style="display:flex;align-items:flex-start;gap:16px;">
+          <span style="font-size:28px;">📁</span>
+          <div>
+            <h3 style="font-size:16px;color:#fcd34d;">Project Management</h3>
+            <p style="font-size:14px;">One project per drug. Set platforms, frequency (real-time/daily/weekly), keywords.</p>
+          </div>
+        </div>
+        <div class="card card-amber" style="display:flex;align-items:flex-start;gap:16px;">
+          <span style="font-size:28px;">📈</span>
+          <div>
+            <h3 style="font-size:16px;color:#fcd34d;">Signal Timeline</h3>
+            <p style="font-size:14px;">Track when each ADR first appeared and how reports are growing week over week.</p>
+          </div>
+        </div>
+        <div class="card card-amber" style="display:flex;align-items:flex-start;gap:16px;">
+          <span style="font-size:28px;">🔴</span>
+          <div>
+            <h3 style="font-size:16px;color:#fcd34d;">CDSCO Label vs Reports</h3>
+            <p style="font-size:14px;">Side-by-side comparison. Unlisted = HIGH priority flag raised immediately.</p>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card card-amber" style="display:flex;align-items:flex-start;gap:16px;">
+          <span style="font-size:28px;">🔒</span>
+          <div>
+            <h3 style="font-size:16px;color:#fcd34d;">PII / PHI Detection</h3>
+            <p style="font-size:14px;">Names, phones, Aadhaar auto-removed. Author IDs SHA-256 hashed before storage.</p>
+          </div>
+        </div>
+        <div class="card card-amber" style="display:flex;align-items:flex-start;gap:16px;">
+          <span style="font-size:28px;">📋</span>
+          <div>
+            <h3 style="font-size:16px;color:#fcd34d;">Source Posts</h3>
+            <p style="font-size:14px;">Anonymized patient reports behind every signal, with confidence scores.</p>
+          </div>
+        </div>
+        <div class="card card-amber" style="display:flex;align-items:flex-start;gap:16px;">
+          <span style="font-size:28px;">📤</span>
+          <div>
+            <h3 style="font-size:16px;color:#fcd34d;">CDSCO Report Export</h3>
+            <p style="font-size:14px;">One click → ICSR-format pharmacovigilance report, ready for PvPI submission.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <span class="slide-num">6 / 9</span>
+</div>
+
+<!-- ── SLIDE 7: TECH STACK ──────────────────────────────────────────────── -->
+<div class="slide slide-7" id="slide-7" style="display:none;">
+  <div class="deco" style="width:500px;height:500px;background:radial-gradient(circle,#0d9488,transparent);bottom:-100px;left:-100px;"></div>
+
+  <div style="width:100%;max-width:1000px;z-index:1;">
+    <div class="tag tag-teal">Tech Stack</div>
+    <h2>Built for <span class="accent-teal">real-world scale</span></h2>
+
+    <div class="grid-4" style="margin-top:36px;">
+      <div class="card card-teal" style="text-align:center;">
+        <div style="font-size:32px;margin-bottom:12px;">⚡</div>
+        <h3 style="font-size:15px;color:#5eead4;">Backend</h3>
+        <p style="font-size:13px;">Python + FastAPI + SQLAlchemy + SQLite</p>
+      </div>
+      <div class="card card-teal" style="text-align:center;">
+        <div style="font-size:32px;margin-bottom:12px;">🧠</div>
+        <h3 style="font-size:15px;color:#5eead4;">NLP</h3>
+        <p style="font-size:13px;">Custom ADR extractor + PII detector (15 medical categories)</p>
+      </div>
+      <div class="card card-teal" style="text-align:center;">
+        <div style="font-size:32px;margin-bottom:12px;">🌐</div>
+        <h3 style="font-size:15px;color:#5eead4;">Crawlers</h3>
+        <p style="font-size:13px;">PRAW (Reddit) · twitterapi.io · Scrapy (forums) · Quora</p>
+      </div>
+      <div class="card card-teal" style="text-align:center;">
+        <div style="font-size:32px;margin-bottom:12px;">🖥️</div>
+        <h3 style="font-size:15px;color:#5eead4;">Frontend</h3>
+        <p style="font-size:13px;">HTML + Tailwind CSS + Chart.js</p>
+      </div>
+    </div>
+
+    <div style="margin-top:28px;">
+      <div class="grid-3">
+        <div class="card" style="border-color:rgba(20,184,166,0.2);text-align:center;">
+          <div class="stat-num accent-teal">10</div>
+          <div class="stat-label">Indian drugs in CDSCO label DB</div>
+        </div>
+        <div class="card" style="border-color:rgba(20,184,166,0.2);text-align:center;">
+          <div class="stat-num accent-teal">15</div>
+          <div class="stat-label">ADR medical categories</div>
+        </div>
+        <div class="card" style="border-color:rgba(20,184,166,0.2);text-align:center;">
+          <div class="stat-num accent-teal">4</div>
+          <div class="stat-label">Social platforms monitored</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <span class="slide-num">7 / 9</span>
+</div>
+
+<!-- ── SLIDE 8: IMPACT ──────────────────────────────────────────────────── -->
+<div class="slide slide-8" id="slide-8" style="display:none;">
+  <div class="deco" style="width:600px;height:600px;background:radial-gradient(circle,#4f46e5,transparent);top:-200px;right:-200px;"></div>
+
+  <div style="width:100%;max-width:1000px;z-index:1;">
+    <div class="tag tag-purple">Impact</div>
+    <h2>From <span class="accent-purple">slow &amp; manual</span> to <span class="accent-green">real-time &amp; automated</span></h2>
+
+    <div class="grid-2" style="margin-top:36px;">
+      <div>
+        <h3 style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:18px;">Without PharmaSentinel</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card card-red">❌ &nbsp; Doctors file manually — months delay</div>
+          <div class="card card-red">❌ &nbsp; Patient reports completely missed</div>
+          <div class="card card-red">❌ &nbsp; Unlisted ADRs stay unknown for years</div>
+          <div class="card card-red">❌ &nbsp; No statistical scoring — anecdotal only</div>
+        </div>
+      </div>
+      <div>
+        <h3 style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:18px;">With PharmaSentinel</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card card-green">✅ &nbsp; Signals detected within hours</div>
+          <div class="card card-green">✅ &nbsp; Patient voice directly monitored</div>
+          <div class="card card-green">✅ &nbsp; Unlisted ADRs flagged immediately</div>
+          <div class="card card-green">✅ &nbsp; PRR score — same as WHO standard</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:28px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:20px 28px;text-align:center;">
+      <p style="color:#c4b5fd;font-size:16px;">
+        Potential to <strong>save lives</strong> by catching unlisted drug side effects before they harm more patients —<br>
+        and giving CDSCO the data they need to act.
+      </p>
+    </div>
+  </div>
+  <span class="slide-num">8 / 9</span>
+</div>
+
+<!-- ── SLIDE 9: TEAM ────────────────────────────────────────────────────── -->
+<div class="slide slide-9" id="slide-9" style="display:none;">
+  <div class="deco" style="width:500px;height:500px;background:radial-gradient(circle,#7c3aed,transparent);top:-100px;right:-100px;"></div>
+  <div class="deco" style="width:400px;height:400px;background:radial-gradient(circle,#1d4ed8,transparent);bottom:-100px;left:-100px;"></div>
+
+  <div style="text-align:center;z-index:1;max-width:800px;">
+    <div class="tag tag-purple">Team</div>
+    <h2 style="margin-bottom:32px;">Built by students who <span class="accent-purple">care about the problem</span></h2>
+
+    <div class="grid-2" style="margin-bottom:40px;">
+      <div class="card" style="text-align:center;padding:36px;">
+        <div style="width:64px;height:64px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;">G</div>
+        <h3 style="margin-bottom:6px;">Gunjan</h3>
+        <p style="font-size:14px;color:rgba(255,255,255,0.5);">MCA Student · MIET Meerut</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:8px;">NLP · Backend · Data</p>
+      </div>
+      <div class="card" style="text-align:center;padding:36px;">
+        <div style="width:64px;height:64px;background:linear-gradient(135deg,#0d9488,#0891b2);border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;">H</div>
+        <h3 style="margin-bottom:6px;">Huda Khan</h3>
+        <p style="font-size:14px;color:rgba(255,255,255,0.5);">MCA Student · MIET Meerut</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:8px;">Research · Signal Detection · UI</p>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:32px;">
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 24px;font-size:14px;">
+        🐙 &nbsp;<span style="color:rgba(255,255,255,0.5);">GitHub:</span> &nbsp;github.com/gunnu1106/pharmasentinel
+      </div>
+    </div>
+
+    <p style="font-size:20px;color:rgba(255,255,255,0.5);font-style:italic;">
+      "We are not just building a tool.<br>We are building an early warning system for drug safety in India."
+    </p>
+  </div>
+  <span class="slide-num">9 / 9</span>
+</div>
+
+<!-- Navigation -->
+<div id="nav">
+  <button onclick="prev()">← Prev</button>
+  <span id="slide-counter">1 / 9</span>
+  <button onclick="next()">Next →</button>
+</div>
+
+<script>
+let current = 1;
+const total = 9;
+
+function showSlide(n) {
+  for (let i = 1; i <= total; i++) {
+    document.getElementById(`slide-${i}`).style.display = i === n ? 'flex' : 'none';
+  }
+  document.getElementById('slide-counter').textContent = `${n} / ${total}`;
+  current = n;
+}
+
+function next() { if (current < total) showSlide(current + 1); }
+function prev() { if (current > 1) showSlide(current - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') next();
+  if (e.key === 'ArrowLeft') prev();
+});
+
+showSlide(1);
+</script>
+</body>
+</html>
